@@ -1,15 +1,10 @@
 package ai.turbochain.ipex.controller;
 
-import com.alibaba.fastjson.JSON;
+import static ai.turbochain.ipex.constant.SysConstant.SESSION_MEMBER;
 
-import ai.turbochain.ipex.constant.BooleanEnum;
-import ai.turbochain.ipex.constant.MemberLevelEnum;
-import ai.turbochain.ipex.constant.SysConstant;
-import ai.turbochain.ipex.entity.*;
-import ai.turbochain.ipex.entity.transform.AuthMember;
-import ai.turbochain.ipex.service.*;
-import ai.turbochain.ipex.util.MessageResult;
-import lombok.extern.slf4j.Slf4j;
+import java.math.BigDecimal;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -17,14 +12,38 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.SessionAttribute;
 import org.springframework.web.client.RestTemplate;
 
-import static ai.turbochain.ipex.constant.SysConstant.SESSION_MEMBER;
+import com.alibaba.fastjson.JSON;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
+import ai.turbochain.ipex.constant.BooleanEnum;
+import ai.turbochain.ipex.constant.MemberLevelEnum;
+import ai.turbochain.ipex.constant.SysConstant;
+import ai.turbochain.ipex.entity.Coin;
+import ai.turbochain.ipex.entity.ExchangeCoin;
+import ai.turbochain.ipex.entity.ExchangeOrder;
+import ai.turbochain.ipex.entity.ExchangeOrderDetail;
+import ai.turbochain.ipex.entity.ExchangeOrderDirection;
+import ai.turbochain.ipex.entity.ExchangeOrderStatus;
+import ai.turbochain.ipex.entity.ExchangeOrderType;
+import ai.turbochain.ipex.entity.Member;
+import ai.turbochain.ipex.entity.MemberWallet;
+import ai.turbochain.ipex.entity.transform.AuthMember;
+import ai.turbochain.ipex.service.CoinService;
+import ai.turbochain.ipex.service.ExchangeCoinService;
+import ai.turbochain.ipex.service.ExchangeOrderDetailService;
+import ai.turbochain.ipex.service.ExchangeOrderService;
+import ai.turbochain.ipex.service.LocaleMessageSourceService;
+import ai.turbochain.ipex.service.MemberService;
+import ai.turbochain.ipex.service.MemberWalletService;
+import ai.turbochain.ipex.util.MessageResult;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 委托订单处理类
@@ -220,7 +239,7 @@ public class OrderController {
                                                     @RequestParam(value = "direction",required = false) ExchangeOrderDirection direction,
                                                     @RequestParam(value = "pageNo",defaultValue = "1") int pageNo,
                                                     @RequestParam(value = "pageSize",defaultValue = "10") int pageSize) {
-
+    	// TODO 改完sql 级联查询
         Page<ExchangeOrder> page = orderService.findPersonalHistory(member.getId(), symbol, type, status, startTime, endTime,direction, pageNo, pageSize);
         page.getContent().forEach(exchangeOrder -> {
             //获取交易成交详情
